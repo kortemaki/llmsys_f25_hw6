@@ -28,4 +28,9 @@ deepspeed main.py \
    --zero_stage $ZERO_STAGE \
    --deepspeed \
    --output_dir $OUTPUT \
+   --lora_dim 64
+   --only_optimize_lora
+   --enable_tensorboard
+   --print_loss
+   --add_eot_token
    #&> $OUTPUT/training.log
