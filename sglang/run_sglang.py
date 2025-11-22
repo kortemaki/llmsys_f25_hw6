@@ -29,7 +29,11 @@ def main():
     # TODO: initialize sglang engine here
     # you may want to explore different args we can pass here to make the inference faster
     # e.g. dp_size, mem_fraction_static
-    llm = None
+    server_args = {
+        #"dp_size": 1,
+        #"mem_fraction_static": 0.2,
+    }
+    llm = sgl.Engine(model_path=model_path, server_args=server_args)
 
     prompts = []
 
