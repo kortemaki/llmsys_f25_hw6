@@ -4,21 +4,21 @@
 
 # DeepSpeed Team
 ZERO_STAGE=$1
-OUTPUT=./output_llama2_7b_lora
+OUTPUT=/ocean/projects/cis250159p/kmaki/HW6/output_llama2_7b_lora
 if [ "$ZERO_STAGE" == "" ]; then
     ZERO_STAGE=3
 fi
 mkdir -p $OUTPUT
 
-deepspeed main.py \
+uv run deepspeed main.py \
    --data_split 2,4,4 \
    --model_name_or_path meta-llama/Llama-2-7b-hf \
-   --per_device_train_batch_size 1 \
+   --per_device_train_batch_size 4 \
    --per_device_eval_batch_size 4 \
    --max_seq_len 512 \
    --learning_rate 9.65e-6 \
    --weight_decay 0. \
-   --num_train_epochs 2  \
+   --num_train_epochs 4  \
    --gradient_accumulation_steps 4 \
    --lr_scheduler_type cosine \
    --num_warmup_steps 0 \
@@ -27,10 +27,12 @@ deepspeed main.py \
    --dtype bf16 \
    --zero_stage $ZERO_STAGE \
    --deepspeed \
+   --lora_module_name model.layers. \
+   --offload \
    --output_dir $OUTPUT \
-   --lora_dim 64
-   --only_optimize_lora
-   --enable_tensorboard
-   --print_loss
-   --add_eot_token
-   #&> $OUTPUT/training.log
+   --lora_dim 64 \
+   --only_optimize_lora \
+   --compute_fp32_loss \
+   --enable_tensorboard \
+   --add_eot_token \
+   &> $OUTPUT/training.log

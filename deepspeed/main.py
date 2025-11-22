@@ -382,7 +382,6 @@ def main():
         model.tput_timer.update_epoch_count()
 
     # Uncomment the following if you want to save your model
-    """
     if args.output_dir is not None:
         print_rank_0('saving the final model ...', args.global_rank)
         model = convert_lora_to_linear_layer(model)
@@ -396,7 +395,6 @@ def main():
                                   args.global_rank,
                                   args.output_dir,
                                   zero_stage=args.zero_stage)
-    """
 
 if __name__ == "__main__":
     main()
