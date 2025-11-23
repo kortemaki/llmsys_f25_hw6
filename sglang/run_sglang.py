@@ -30,15 +30,22 @@ def main():
     # you may want to explore different args we can pass here to make the inference faster
     # e.g. dp_size, mem_fraction_static
     server_args = {
-        #"dp_size": 1,
-        #"mem_fraction_static": 0.2,
+        "enable_cache_report": True,
+        "model_path": model_path,
+        "mem_fraction_static": 0.7,
+        "cuda_graph_max_bs": 16,
     }
-    llm = sgl.Engine(model_path=model_path, server_args=server_args)
+    llm = sgl.Engine(server_args=sgl.ServerArgs(**server_args))
 
+    PROMPT_START = "<|im_start|>"
+    PROMPT_END = "<|im_end|>"
     prompts = []
 
     for i in dataset:
-        prompts.append(i['instruction'])
+        prompt = i['instruction']
+        prefix = "" if prompt[:len(PROMPT_START)] == PROMPT_START else PROMPT_START
+        suffix = "" if prompt[-len(PROMPT_END)] == PROMPT_END else PROMPT_END
+        prompts.append(f"{prefix}{prompt}{suffix}")
 
     sampling_params = {"temperature": 0.7, "top_p": 0.95, "max_new_tokens": 8192}
 
@@ -52,7 +59,7 @@ def main():
         # TODO: prepare the batched prompts and use llm.generate
         # save the output in outputs
         batch = prompts[i : i + batch_size]
-        output = llm.generate(batch)
+        output = llm.generate(batch, sampling_params=sampling_params)
         outputs += output
 
     with open(args.output_file, "w") as f:
